@@ -1,0 +1,69 @@
+Project pose {
+    database_type: 'VoltDB'
+    Note: '''
+        # pose
+        pose provides a service for Pocket Java SDK (https://nilukush.github.io/pjs/) . It includes authentication, authorization services for Pocket and also, provides services to retrieve
+        and add URLs to one's pocket account. And, this DBML defines the schema for all tables.
+    '''
+}
+
+Table t_user {
+    id varchar [pk]
+    username varchar
+    access_token varchar
+    created_at datetime [default: `now()`]
+    created_by varchar [default: 'app']
+    updated_at datetime [default: `now()`]
+    updated_by varchar [default: 'app']
+
+    Indexes {
+        id [unique]
+        username
+    }
+
+    Note: '''
+        User table to store authentication and user details like token, username
+    '''
+}
+
+Table t_pocket_item {
+    id int [pk, increment]
+    given_title varchar
+    given_url varchar [not null, unique]
+    status varchar
+    created_at datetime [default: `now()`]
+    created_by varchar [default: 'app']
+    updated_at datetime [default: `now()`]
+    updated_by varchar [default: 'app']
+
+    Indexes {
+        given_url [unique]
+    }
+
+    Note: '''
+        Pocket item stores the structure of a item you saved in your Pocket account - url, title, status, tags
+    '''
+}
+
+Table t_user_pocket_item {
+    user_id varchar [ref: > t_user.id]
+    pocket_item_id int [ref: > t_pocket_item.id]
+    created_at datetime [default: `now()`]
+    created_by varchar [default: 'app']
+    updated_at datetime [default: `now()`]
+    updated_by varchar [default: 'app']
+
+    Indexes {
+        user_id [unique]
+    }
+
+    Note: '''
+        This stores mapping between a user and his / her list of saved items in his / her Pocket account
+    '''
+}
+
+TableGroup g_user_pocket_item {
+    t_user
+    t_pocket_item
+    t_user_pocket_item
+}
