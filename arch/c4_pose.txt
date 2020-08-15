@@ -1,0 +1,95 @@
+workspace "pose" "A service for Pocket Java SDK" {
+    model {
+        enterprise "PE" {
+            ss_pe = softwareSystem "Pocket Explorer" "A desktop app for Pocket" {
+                c_desktop_app = container "Desktop APP" "Desktop APP" "Electron" "t_desktop_app"
+                c_api_gateway = container "API Gateway" "API gateway for all API(s)" "Spring Boot" "t_api_gateway"
+                c_pose = container "Pocket Service" "Service for Pocket REST API(s)" "Spring Boot" "t_pose"
+                c_db = container "Database" "Stores user and pocket items information" "VoltDB" "t_db"
+            }
+        }
+
+        p_user = person "User" "A user of pocket explorer" "t_user"
+        p_user -> ss_pe "Opens" "Desktop APP" "tr_user_ss_pe"
+
+        p_user -> c_desktop_app "Opens" "Desktop APP" "tr_user_desktop_app"
+        c_desktop_app -> c_api_gateway "Makes request to" "" "tr_desktop_app_api_gateway"
+        c_api_gateway -> c_pose "Calls Pocket Service to get or update details" "" "tr_api_gateway_pose"
+
+        ss_papi = softwareSystem "Pocket API" "REST APIs from Pocket" "t_ss_papi"
+
+        ss_pe -> ss_papi "Uses" "" "tr_pe_papi"
+        c_pose -> ss_papi "Calls" "" "tr_pose_papi"
+        c_pose -> c_db "Store user and pocket items information" "" "tr_pose_db"
+    }
+
+    views {
+        systemlandscape "SystemLandscape" {
+            include *
+            autoLayout
+        }
+
+        systemContext ss_pe "ss_pe" "Context diagram for Pocket Explorer" {
+            include *
+            autoLayout
+        }
+
+        container ss_pe "ss_pe_container" {
+            include *
+            animationStep c_desktop_app c_api_gateway c_pose
+            animationStep ss_papi
+            autoLayout
+        }
+
+        styles {
+            element "Software System" {
+                shape RoundedBox
+                background #71c61b
+                color #ffffff
+            }
+
+            element "t_user" {
+                shape person
+                background #c99f7a
+                color #ffffff
+            }
+
+            element "t_desktop_app" {
+                shape WebBrowser
+                background #7c59db
+                color #ffffff
+            }
+
+            element "t_api_gateway" {
+                shape RoundedBox
+                background #7a7784
+                color #ffffff
+            }
+
+            element "t_pose" {
+                shape Hexagon
+                background #71c61b
+                color #ffffff
+            }
+
+            element "t_db" {
+                shape Cylinder
+                background #4047ce
+                color #ffffff
+            }
+
+            element "t_ss_papi" {
+                shape Component
+                background #ef1809
+                color #ffffff
+            }
+
+            relationship "tr_pose_papi" {
+                color #4f9fbc
+                colour #4f9fbc
+            }
+        }
+
+        themes https://static.structurizr.com/themes/google-cloud-platform-v1.5/theme.json
+    }
+}
